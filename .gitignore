@@ -1,0 +1,13 @@
+# build output
+bin/
+obj/
+*.user
+*.suo
+.vs/
+.idea/
+# release archives are uploaded to GitHub Releases, not committed
+*.zip
+# local translation overrides / logs
+SorterUnlock.lang.json
+*.log
+*.log.prev

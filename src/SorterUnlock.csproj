@@ -1,0 +1,57 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    SorterUnlock - plugin for Space Engineers 2.
+    Build: dotnet build -c Release
+    The game's own assemblies are referenced from your game install (not included in this repository).
+    If the game is installed elsewhere:  dotnet build -c Release -p:SE2Dir="D:\SteamLibrary\steamapps\common\SpaceEngineers2"
+  -->
+  <PropertyGroup>
+    <AssemblyName>SorterUnlock</AssemblyName>
+    <RootNamespace>SorterUnlock</RootNamespace>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>13.0</LangVersion>
+    <Nullable>annotations</Nullable>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <GenerateAssemblyInfo>True</GenerateAssemblyInfo>
+    <Version>0.6.2</Version>
+    <InformationalVersion>0.6.2-haron</InformationalVersion>
+    <Company>SorterUnlock</Company>
+    <Product>SorterUnlock</Product>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SE2Dir Condition="'$(SE2Dir)' == ''">C:\Program Files (x86)\Steam\steamapps\common\SpaceEngineers2</SE2Dir>
+    <SE2Bin>$(SE2Dir)\Game2</SE2Bin>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- MonoMod is not part of the game: it comes from NuGet and is shipped next to SorterUnlock.dll -->
+    <PackageReference Include="MonoMod.RuntimeDetour" Version="25.3.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Avalonia.Base"><HintPath>$(SE2Bin)\Avalonia.Base.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Game2.Client"><HintPath>$(SE2Bin)\Game2.Client.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Game2.Simulation"><HintPath>$(SE2Bin)\Game2.Simulation.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="VRage.DCS"><HintPath>$(SE2Bin)\VRage.DCS.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="VRage.Library"><HintPath>$(SE2Bin)\VRage.Library.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="VRage.Core"><HintPath>$(SE2Bin)\VRage.Core.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="VRage.Input"><HintPath>$(SE2Bin)\VRage.Input.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="VRage.Core.Game"><HintPath>$(SE2Bin)\VRage.Core.Game.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="VRage.UI.Shared"><HintPath>$(SE2Bin)\VRage.UI.Shared.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Avalonia.Controls"><HintPath>$(SE2Bin)\Avalonia.Controls.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Game2.Game"><HintPath>$(SE2Bin)\Game2.Game.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Avalonia.Markup.Xaml"><HintPath>$(SE2Bin)\Avalonia.Markup.Xaml.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="FluentAvalonia"><HintPath>$(SE2Bin)\FluentAvalonia.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="ReactiveUI"><HintPath>$(SE2Bin)\ReactiveUI.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="SpaceEngineers2"><HintPath>$(SE2Bin)\SpaceEngineers2.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="System.Reactive"><HintPath>$(SE2Bin)\System.Reactive.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="VRage.Audio"><HintPath>$(SE2Bin)\VRage.Audio.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="VRage.Client"><HintPath>$(SE2Bin)\VRage.Client.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="VRage.Game.Client"><HintPath>$(SE2Bin)\VRage.Game.Client.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="VRage.Game"><HintPath>$(SE2Bin)\VRage.Game.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="VRage.Multiplayer"><HintPath>$(SE2Bin)\VRage.Multiplayer.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="VRage.Physics"><HintPath>$(SE2Bin)\VRage.Physics.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="VRage.Render"><HintPath>$(SE2Bin)\VRage.Render.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="VRage.UI"><HintPath>$(SE2Bin)\VRage.UI.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="VRage.Voxels"><HintPath>$(SE2Bin)\VRage.Voxels.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+</Project>

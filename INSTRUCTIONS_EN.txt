@@ -1,0 +1,322 @@
+﻿SorterUnlock — a working Conveyor Sorter for Space Engineers 2
+==============================================================
+Version: 0.6.2
+Tested on: Space Engineers 2, build 4.0.0.3165, single player.
+
+Unofficial plugin. Not affiliated with Keen Software House.
+
+
+CONTENTS
+  1. What it is and why
+  2. Installation
+  3. Checking that it works
+  4. Uninstalling
+  5. How to use it
+     5.1 Item filter
+     5.2 Pump mode ("Drain all")
+     5.3 Opposite flow
+     5.4 Transfer mode
+     5.5 Several sorters at once
+  6. How it works (the rules)
+  7. What the plugin can do
+  8. What it can't do / limitations
+  9. Interface languages
+ 10. If something goes wrong
+ 11. FAQ
+ 12. Building from source (for developers)
+
+
+1. WHAT IT IS AND WHY
+---------------------
+In the current version of Space Engineers 2 the Conveyor Sorter block is in
+the game but doesn't actually work: the filter isn't applied, "Drain all"
+doesn't pump anything, and settings don't stick the way they should.
+
+Almost all of the code needed is already in the game: the filter component,
+the conveyor network logic, the terminal tab. It just isn't wired to the
+sorter block. SorterUnlock wires it up, fixes the bugs we found along the
+way, and adds a convenient filter panel.
+
+Important:
+  - Game files are NOT modified. Everything happens in memory at startup.
+  - Remove the plugin from the launch options and the game is vanilla again.
+  - Once Keen fix the sorter themselves, just disable the plugin.
+
+
+2. INSTALLATION
+---------------
+1) Download SorterUnlock-vX.Y.Z.zip from the Releases page on GitHub.
+
+2) Extract the WHOLE folder to a permanent location OUTSIDE the game folder,
+   for example:
+       C:\Games\SE2Mods\SorterUnlock\
+   Don't put it inside the game folder: a game update or Steam's
+   "verify files" may delete it.
+   All DLLs from the archive must stay together next to SorterUnlock.dll
+   (MonoMod*.dll and Mono.Cecil*.dll are the libraries the plugin uses to
+   hook into the game).
+
+3) In Steam: Library -> Space Engineers 2 -> right-click -> Properties ->
+   General -> Launch Options. Enter:
+
+       -plugins:C:\Games\SE2Mods\SorterUnlock\SorterUnlock.dll
+
+   Use your own path. If the path contains spaces, put the whole option in
+   quotes:
+       "-plugins:D:\My Mods\SorterUnlock\SorterUnlock.dll"
+
+   If you already use another plugin, list the paths separated by
+   semicolons, without spaces around them:
+       -plugins:C:\Games\SE2Mods\Other\Other.dll;C:\Games\SE2Mods\SorterUnlock\SorterUnlock.dll
+
+4) Start the game.
+
+The plugin is not installed through the Steam Workshop and does not show up
+in the in-game mod list. That's expected.
+
+BACK UP YOUR SAVE before the first run on a world you care about.
+
+
+3. CHECKING THAT IT WORKS
+-------------------------
+- Open the terminal of any sorter. At the bottom of the tab you should see
+  an "Item filter" panel with item groups, a search box and a
+  "Transfer mode" section.
+- The plugin's log:
+      %AppData%\SpaceEngineers2\SorterUnlock\SorterUnlock.log
+  (paste this into the File Explorer address bar).
+  The previous run's log is SorterUnlock.log.prev.
+  Near the top you should see "SorterUnlock 0.6.2... initializing" and
+  several "Hook installed ..." lines.
+
+
+4. UNINSTALLING
+---------------
+1) Remove the SorterUnlock.dll path from the Steam launch options.
+2) You can delete the plugin folder.
+
+Sorters stay in your world but become "decorative" again, as in the vanilla
+game. How the vanilla game treats a save made with the plugin has not been
+tested in depth, which is why we recommend keeping a backup.
+
+
+5. HOW TO USE IT
+----------------
+A sorter has two sides: INPUT (back) and OUTPUT (front). If items go the
+wrong way, rotate the block.
+
+5.1 Item filter
+  The sorter's terminal has an "Item filter" panel:
+  - Items are grouped: ores, ingots, components, tools, consumables,
+    blueprints, datapads, quest items, other.
+  - Tick the items you want. The "all" checkbox of a group ticks or clears
+    the whole group (respecting the search).
+  - Search by name in the "Search item…" box.
+  - "Clear all" clears every tick. "Collapse groups" folds the lists.
+  - Changes apply immediately; there is no "Save" button.
+
+  Filter mode (drop-down):
+  - "Allow selected" — ONLY the ticked items pass the sorter.
+  - "Block selected" — EVERYTHING passes EXCEPT the ticked items.
+  - NOTHING ticked — the filter is off, everything passes (in either mode).
+
+  Below the drop-down the panel says in plain words what will pass right
+  now, e.g. "Only this passes the sorter: Iron, Nickel."
+
+  The plugin hides the stock "whitelist" toggle: this drop-down replaces it
+  (it drives the same setting, which is saved with the world).
+
+5.2 Pump mode ("Drain all")
+  This is the sorter's stock setting. When it's on, the sorter works as a
+  pump: it pulls items out of inventories on its INPUT side and pushes them
+  to its OUTPUT side. The filter decides WHAT gets pumped.
+
+  Example: container A -> sorter (allow: iron, "Drain all") -> container B.
+  All the iron in A moves to B on its own.
+
+  If the filter is empty and "Drain all" is on, the pump moves everything.
+  The panel warns you about this.
+
+5.3 Opposite flow (Allow opposite flow)
+  Stock setting. Allows movement in the reverse direction (output to
+  input), and in that direction EVERYTHING passes, unfiltered. That's how
+  Keen designed it. The panel shows a warning when it's on.
+
+5.4 Transfer mode
+  Why: an active pump ("Drain all" on) is like a one-way valve: another
+  pump can't pull items back through it. Sometimes you need to "open the
+  pipe" for a while without touching the settings.
+
+  - Pick a duration with the slider (10 seconds to 5 minutes) and press
+    "⇄ Transfer".
+  - For that time the sorter stops pumping and becomes an open pipe in both
+    directions; the filter doesn't apply.
+  - "Finish when the pumps are done": transfer mode ends early if no pump
+    on the network has done any work for about 3 seconds.
+  - While it's active you see a plate with a countdown and the "+30 s" and
+    "Restore now" buttons.
+  - The sorter's settings (ticks, mode, "Drain all") are NOT changed.
+    Afterwards everything is back as it was and the pump starts again.
+
+5.5 Several sorters at once
+  If you select several sorters in the terminal, the panel says "Sorters
+  selected: N": ticks and transfer mode apply to all of them.
+
+
+6. HOW IT WORKS (THE RULES)
+---------------------------
+To stop items from bouncing back and forth, the plugin adds a few rules for
+pumps:
+
+1) A pump moves items only ACROSS itself: from its input side to its
+   output side. It doesn't shuffle items between containers on the same
+   side.
+
+2) A pump never pulls items backwards through another ACTIVE pump (one
+   with "Drain all" on). An active pump is a one-way valve. To get
+   something through it, use transfer mode.
+
+3) When two pumps share a source, the one that explicitly lists the item
+   goes first. Example: pump B "allow: iron", pump C "drain all, no
+   filter". Iron goes to B, and only reaches C once the container behind
+   B is full.
+
+4) Production isn't robbed. If a refinery or assembler has taken resources
+   for its current job, a pump won't drag them back while they're needed.
+
+5) After any change to a filter or mode, the pumps on that conveyor network
+   restart by themselves: no need to toggle "Drain all" off and on.
+
+6) The player (terminal, inventory) can see and take items across the
+   whole conveyor chain, regardless of sorter direction and filters.
+   Filters limit automation, not you.
+
+
+7. WHAT THE PLUGIN CAN DO
+-------------------------
+- Makes the Conveyor Sorter (large and small) a working block.
+- The filter works, is saved with the world and restored on load.
+- "Drain all" pump mode and opposite flow work.
+- Its own filter panel: groups, search, proper item names, a clear
+  "allow / block" mode, plain-language hints.
+- Empty filter = everything passes (no "I turned on whitelist and
+  everything stopped" surprises).
+- Rules against ping-pong between pumps (section 6).
+- Protection of resources taken by production.
+- Transfer mode with a timer and auto-finish.
+- Pumps wake up by themselves after settings change.
+- Interface in 13 languages, switches together with the game language.
+- Doesn't modify game files; errors go to its own log.
+
+
+8. WHAT IT CAN'T DO / LIMITATIONS
+---------------------------------
+- Tested ONLY in single player. The filter panel works in single player
+  and for the host. Dedicated servers and co-op clients were not tested;
+  the panel will most likely say the sorter wasn't found on the server.
+- Not available through the Workshop; needs a launch option.
+- May break after a game update. If the parts of the game it relies on
+  have changed, the plugin writes an error to its log and leaves the game
+  alone (vanilla behaviour). Updates come as new releases on GitHub.
+- Opposite flow lets everything through unfiltered (Keen's design).
+- Another pump can't pull items backwards through an active pump. That's
+  intentional; transfer mode is there for it.
+- Two pumps facing each other (a loop) aren't handled specially. Don't
+  build such loops, items may go round in circles.
+- Not tested whether "drain all, no filter" pumps pull ammo out of turrets,
+  fuel out of reactors or cockpit contents. Be careful placing such pumps
+  next to those blocks.
+- Very large bases with many pumps may do extra calculations; there's no
+  dedicated optimisation for that yet.
+- Translations other than Russian and English were not proofread by native
+  speakers. Corrections are welcome (see section 9).
+
+
+9. INTERFACE LANGUAGES
+----------------------
+Russian, English, Ukrainian, German, French, Spanish, Italian, Polish,
+Czech, Slovak, Portuguese (Brazil), Turkish, Chinese (Simplified).
+
+The language follows the game settings and changes immediately when you
+switch the game language. Group names (ores, ingots, etc.) and item names
+come from the game's official translation.
+
+Your own wording: put a SorterUnlock.lang.json file next to
+SorterUnlock.dll, for example:
+
+    {
+      "en-US": { "maint_btn": "⇄ Bypass" },
+      "de-DE": { "title": "Itemfilter" }
+    }
+
+Text keys are listed in src/Lang.cs on GitHub. The file is read when the
+game starts.
+
+
+10. IF SOMETHING GOES WRONG
+---------------------------
+1) Close the game.
+2) Grab the log: %AppData%\SpaceEngineers2\SorterUnlock\SorterUnlock.log
+   (and SorterUnlock.log.prev if the problem was in the previous run).
+3) Open an Issue on the project's GitHub page: what you did, what you
+   expected, what happened, and attach the log. A screenshot or a sketch of
+   the conveyor layout helps a lot.
+
+If the game won't start or crashes, just remove the launch option: the game
+becomes vanilla again.
+
+
+11. FAQ
+-------
+Q: I turned on "Drain all" and nothing moves.
+A: Check that the items are on the INPUT side, the receiver is on the
+   OUTPUT side, and the output container isn't full. Check the filter: in
+   "Allow selected" mode only ticked items are pumped.
+
+Q: Why doesn't iron come back through the pump?
+A: An active pump is a one-way valve (rule 2). Press "Transfer" on it for
+   as long as you need.
+
+Q: What's the difference between "Block selected" with nothing ticked and
+   "Allow selected" with nothing ticked?
+A: None: an empty filter lets everything through.
+
+Q: I don't see the filter panel.
+A: Check the launch option and the DLL path, and look at the log. If it
+   says "initialization failed", the game was probably updated and a new
+   plugin release is needed.
+
+Q: Is it safe for my saves?
+A: Game files aren't modified, but the plugin is unofficial. Keep a backup.
+
+
+12. BUILDING FROM SOURCE (FOR DEVELOPERS)
+-----------------------------------------
+You need the .NET 9 SDK and Space Engineers 2 installed.
+
+    cd src
+    dotnet build -c Release
+
+If the game isn't in the default Steam folder:
+
+    dotnet build -c Release -p:SE2Dir="D:\SteamLibrary\steamapps\common\SpaceEngineers2"
+
+Output: src\bin\Release\net9.0\ — SorterUnlock.dll plus the MonoMod
+libraries. Game assemblies are not in this repository and are not
+redistributed; they're referenced from your game install.
+
+The plugin is built on MonoMod (hooks into game methods). Main files:
+  SorterUnlockPlugin.cs — entry point, attaches the filter component to the sorter
+  DirectionFix.cs       — gives the sorter an output side
+  UiFix.cs              — fixes syncing of the sorter terminal tab
+  FilterSync.cs         — filter -> conveyor network, saving, empty list
+  AccessFix.cs          — pump rules, player access to the whole chain
+  Pumps.cs              — server tick, pump restarts, transfer mode
+  FilterPanel.cs        — the filter panel in the terminal
+  Lang.cs               — translations
+  Log.cs, Diag.cs       — log and diagnostics
+
+
+License: MIT (see LICENSE). Third-party libraries: see THIRD-PARTY-NOTICES.txt.
+Space Engineers 2 is a trademark of Keen Software House. This project is not
+affiliated with Keen.
